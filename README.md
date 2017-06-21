@@ -38,3 +38,11 @@ Computing coverage for shorter kmers than unitig length
 ----
 
 Tigops considers only kmers that are unique to the unitig.
+
+
+Increase supported kmer lengths
+-----
+
+Increase the following value in tigops.hpp: 
+
+	#define span KMER_SPAN(2)

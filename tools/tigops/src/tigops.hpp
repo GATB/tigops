@@ -45,7 +45,7 @@ using namespace gatb::core::system::impl;
 
 
 // until a better solution that involves templating things in the .cpp (see email "k>32 for bloocoo/leon")
-#define span KMER_SPAN(1)
+#define span KMER_SPAN(2)
 
 typedef kmer::impl::Kmer<span>::Type  kmer_type;
 typedef kmer::impl::Kmer<span>::Count kmer_count;
