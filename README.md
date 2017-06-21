@@ -6,6 +6,18 @@ Manipulation of unitigs and contigs. Relatively old code from 2014 but might sti
 
  - some other hidden features in the source code
 
+# Usage
+
+    tigops coverage -kmer-size [k value] -tigs [unitigs file]  -reads [reads file]  -out [output file] -name [some_id]
+
+What it does it return the average read k-mer abundance for each sequence of the unitig file. The output will look like:
+
+    >[original unitig header] _cov_[coverage value]_ID_[some_id]
+    [sequence]
+
+you can launch it as many times as the number of reads files you can, each time giving the previous output as input, it will append a "_cov_xxx_ID_yyy" at the end of the fasta header.
+
+ 
 # Project build
 
 For building your project, you should do the following
