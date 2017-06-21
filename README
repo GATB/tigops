@@ -1,16 +1,28 @@
-tigops
+# Tigops 
 
-see tools/tigops/README for a slightly longer readme
+Manipulation of unitigs and contigs. Relatively old code from 2014 but might still be useful for some tasks today:
 
-to compile:
+ - compute coverage from a dataset of reads
 
-cd tools/tigops
-mkdir build
-cd build
-cmake ..
-make -j 8
+ - some other hidden features in the source code
+
+# Project build
+
+For building your project, you should do the following
+    
+    cd tools/tigops
+    mkdir build
+    cd build
+    cmake ..
+    make -j 8
+
+    
+Then, you should get a binary holding the name of the project.
+
+Note: the first compilation should take some time since the GATB-CORE library is generated.
 
 
+Computing coverage for shorter kmers than unitig length
 ----
-shorter kmers than unitig length:
-TODO: only use counts of kmers that are unique to that particular unitig
+
+Tigops considers only kmers that are unique to the unitig.
