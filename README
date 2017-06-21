@@ -1,0 +1,16 @@
+tigops
+
+see tools/tigops/README for a slightly longer readme
+
+to compile:
+
+cd tools/tigops
+mkdir build
+cd build
+cmake ..
+make -j 8
+
+
+----
+shorter kmers than unitig length:
+TODO: only use counts of kmers that are unique to that particular unitig

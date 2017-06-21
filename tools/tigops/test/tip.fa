@@ -1,0 +1,12 @@
+>0 it's a classical tip: 1 go to 2, 2 go to 3 and 4, 3 go to 5, 5 go to 1 (circling back), 4 is a tip; 0 is isolated
+TTAA
+>1
+ACTG
+>2
+CTGA
+>3
+TGAT
+>4
+TGAC
+>5
+GACT
