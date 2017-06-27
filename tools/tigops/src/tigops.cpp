@@ -1,9 +1,12 @@
-// TODO make it constant memory using the technique from github/rchikhi/constant_memory_tip_removal 
+// mainly used to compute kmer coverage of unitigs
+// for more efficient tip removal you could also consider BTRIM from Malfoy's github
 
 #include <tigops.hpp>
 
 #include <unordered_map>
 #include <numeric>
+#include <sstream> // for setprecision
+#include <iomanip> // for setprecision
 
 
 using namespace std;
@@ -170,10 +173,43 @@ double getMean( vector<int> &values)
 	return accumulate(values.begin(), values.end(), 0.0) / values.size();
 }
 
+double getMedian( vector<int> values) // copy the vector
+{ // https://stackoverflow.com/questions/2114797/compute-median-of-values-stored-in-vector-c
+    if (values.size() == 0) return 0;
+    typedef vector<int>::size_type vec_sz;
+    vec_sz size = values.size();
+    sort(values.begin(), values.end());
+    vec_sz mid = size/2;
+    return size % 2 == 0 ? (values[mid] + values[mid-1]) / 2 : values[mid];
+}
 
-string create_cov_id_header(float cov_mean = 0, string sample_name = "")
+double getSd( vector<int> &v)
 {
-    string s = "_cov_" + std::to_string(cov_mean) + "_ID_" + sample_name;
+    if (v.size() == 0) return 0;
+    double mean = getMean(v);
+    double sq_sum = std::inner_product(v.begin(), v.end(), v.begin(), 0.0); // https://stackoverflow.com/questions/7616511/calculate-mean-and-standard-deviation-from-a-vector-of-samples-in-c-using-boos
+    double stdev = std::sqrt(sq_sum / v.size() - mean * mean);
+    return stdev;
+}
+
+
+
+template <typename T>
+std::string to_string_p(const T a_value, const int n = 3)
+{ // https://stackoverflow.com/questions/16605967/set-precision-of-stdto-string-when-converting-floating-point-values
+    std::ostringstream out;
+    out << std::setprecision(n) << a_value;
+    return out.str();
+}
+
+
+string create_cov_id_header(float cov_mean = 0, string sample_name = "", float cov_median = 0, float cov_sd = 0, unsigned int cov_num = 0)
+{
+    string s;
+    if (cov_median == 0)
+        s = "_mean_" + to_string_p(cov_mean) + "_ID_" + sample_name; // legacy tigops
+    else
+        s = "_mean_" + to_string_p(cov_mean) + "_median_" + to_string_p(cov_median) + "_nbkmers_" + to_string_p(cov_num) + "_ID_" + sample_name; // advanced tigops with median/number of kmers
     return s;
 }
 
@@ -277,16 +313,18 @@ class ComputeCoverage: public Tigop<int> {
 #endif
 
 			double mean = getMean(values);
-            if (mean == 0)
+            if (values.size() == 0)
             {
                 std::istringstream iss(seq.getComment());
                 string unitig;
                 iss >> unitig;
                 std::cerr << std::endl << "No unique kmer found for unitig " <<  unitig << " (seq: " << seq.toString() << " length: " << seqlen<< "). Reporting coverage of 0. Use a larger k to avoid this." << std::endl;
             }
+			double median = getMedian(values);
+			double sd = getSd(values);
 			stringstream ss;
 			ss.precision(1);
-            ss << fixed << seq.getComment() << create_cov_id_header(mean, sample_name);
+            ss << fixed << seq.getComment() << create_cov_id_header(mean, sample_name, median, sd, values.size());
 			outseq._comment = ss.str();
 			outputBank->insert(outseq);
 		}
