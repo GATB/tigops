@@ -209,7 +209,7 @@ string create_cov_id_header(float cov_mean = 0, string sample_name = "", float c
     if (cov_median == 0)
         s = "_mean_" + to_string_p(cov_mean) + "_ID_" + sample_name; // legacy tigops
     else
-        s = "_mean_" + to_string_p(cov_mean) + "_median_" + to_string_p(cov_median) + "_nbkmers_" + to_string_p(cov_num) + "_ID_" + sample_name; // advanced tigops with median/number of kmers
+        s = "_mean_" + to_string_p(cov_mean) + "_median_" + to_string_p(cov_median) + + "_sd_" + to_string_p(cov_sd) + "_nbkmers_" + to_string_p(cov_num) + "_ID_" + sample_name; // advanced tigops with median/number of kmers
     return s;
 }
 
