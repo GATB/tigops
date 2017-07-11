@@ -27,7 +27,12 @@ struct Insert_into_hash
 		void operator() (const kmer_type &kmer) 
 		{
 			kmer_type normalized_kmer = std::min(kmer, revcomp(kmer, _sizeKmer));
-			kmer_hash[normalized_kmer.toString(_sizeKmer)] = 0;
+			string normalized_kmer_string = normalized_kmer.toString(_sizeKmer);
+
+            if (kmer_hash.find(normalized_kmer_string) == kmer_hash.end()) // don't insert/zero-initialize if it was already inserted
+            {
+			    kmer_hash[normalized_kmer_string] = 0;
+            }
 		}
 };
 
@@ -68,6 +73,7 @@ struct Increment_existing_hash
 		{
 			kmer_type normalized_kmer = std::min(kmer, revcomp(kmer, _sizeKmer));
 			string normalized_kmer_string = normalized_kmer.toString(_sizeKmer);
+
 			unordered_map<string,int>::const_iterator got = kmer_hash.find(normalized_kmer_string);
 			if (got != kmer_hash.end())
 				kmer_hash[got->first]=got->second+1;
@@ -92,7 +98,10 @@ struct Get_from_hash
 		{
 			kmer_type normalized_kmer = std::min(kmer, revcomp(kmer, _sizeKmer));
 			string normalized_kmer_string = normalized_kmer.toString(_sizeKmer);
-			values.push_back(kmer_hash[normalized_kmer_string]);
+			
+            unordered_map<string,int>::const_iterator got = kmer_hash.find(normalized_kmer_string);
+			if (got != kmer_hash.end())
+			    values.push_back(got->second);
 		}
 };
 
@@ -267,7 +276,7 @@ class ComputeCoverage: public Tigop<int> {
 			if (seqlen < _sizeKmer)
 				throw Exception("A tig is smaller than k-mer size");
 
-			forAllKmers(seq, seqlen, _sizeKmer, insert_into_hash);
+			forAllKmers(seq, seqlen, _sizeKmer, insert_into_hash); // won't reinsert elements that already exist in the hash
 
             // handle cases where the k-mer size used to compute coverage is smaller than the k-mer size used to create the graph
 			forAllKmers(seq, seqlen, _sizeKmer, increment_existing_hash); // record how many times the kmer was seen in unitigs
@@ -276,15 +285,20 @@ class ComputeCoverage: public Tigop<int> {
         void filter_repeated_kmers()
         {
             // remove kmers that appear in multiple unitigs
-            for (auto it = kmer_hash.begin(); it != kmer_hash.end(); it++)
+            for (auto it = kmer_hash.begin(); it != kmer_hash.end();)
             {
                 if (it->second > 1)
                 {   
+                    //std::cout << "skipping repeated kmer " << it->first << std::endl;
                     it = kmer_hash.erase(it);
                     continue;
                 }
                 else
+                {
+                    //std::cout << "kept kmer " << it->first <<  " " << it->second << std::endl;
                     it->second = 0; // reset counts for the next pass
+                    it++;
+                }
             }
         }
 
@@ -309,10 +323,10 @@ class ComputeCoverage: public Tigop<int> {
 			{
 				printf("%d ", *it);
 			}
+            std::cout << "mean : " << getMean(values) << std::endl;
 			printf("\n");
 #endif
 
-			double mean = getMean(values);
             if (values.size() == 0)
             {
                 std::istringstream iss(seq.getComment());
@@ -320,6 +334,8 @@ class ComputeCoverage: public Tigop<int> {
                 iss >> unitig;
                 std::cerr << std::endl << "No unique kmer found for unitig " <<  unitig << " (seq: " << seq.toString() << " length: " << seqlen<< "). Reporting coverage of 0. Use a larger k to avoid this." << std::endl;
             }
+            
+            double mean = getMean(values);
 			double median = getMedian(values);
 			double sd = getSd(values);
 			stringstream ss;
@@ -826,28 +842,31 @@ void stream_sequences(string sequences_file, Tigop<T> &tigop)
     printf("streaming sequences file %s\n", sequences_file.c_str());
 
     // We declare a Bank instance defined by a list of filenames
-    BankFasta b (sequences_file);
+    IBank *b  = Bank::open(sequences_file);
 
     // We create a sequence iterator for the bank
-    BankFasta::Iterator* itSeq = new BankFasta::Iterator (b);
+    Iterator<Sequence>* itSeq = b->iterator();
 
     //  We create a sequence iterator that notifies listeners every N sequences
-    SubjectIterator<Sequence> iter (itSeq, 1000);
+    SubjectIterator<Sequence>* iter = new SubjectIterator<Sequence>(itSeq, 1000);
 
     // We create some listener to be notified every N iterations and attach it to the iterator.
     // Note that we get an estimation of the number of sequences in the bank and give it to the
     // functor in order to compute a percentage. Since this is a crude estimation, it is likely
     // that the final percentage will not be exactly 100%
-    iter.addObserver (new ProgressTimer (b.estimateNbItems(), "Iterating sequences"));
+    iter->addObserver (new ProgressTimer (b->estimateNbItems(), "Iterating sequences"));
 
-    for (iter.first(); !iter.isDone(); iter.next())
+    for (iter->first(); !iter->isDone(); iter->next())
     {
-        Sequence &seq = iter.item();
+        Sequence &seq = iter->item();
 		int seqlen = seq.getDataSize();
 		if (seqlen == 0) return;
 
 		tigop(seq, seqlen);
     }
+
+    delete iter;
+    delete b;
 }
 
 /********************************************************************************/
