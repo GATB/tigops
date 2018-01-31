@@ -36,10 +36,9 @@ before_deploy:
 deploy:
   provider: releases
   api_key:
-    secure: hQsQR/iRTVbDDJlyJpBln98CT+Mm9GHy/H/gYvLwhoh73f+OmUEreB2HS/KsWp3TTgZeI/ANRBpY11I4Xrai1sntqjXO2LG79pEIoL62AcCBEQJ1RsnkGg9s10qFKzQqImuPDzincnVIrSr92L8kcXBuErU2YK7/Ss5ABzxRN+E=
+    secure: egZA0077WC/HesAJTTLa3UWuu4e+12jKO8W8LBprUiYNpEgMdxoOgvhyF/dBSEDfGfOWmvLOeJJWL4gAuRXb+YRMIErcgndbCp79V0QmJbZt+D0VO4YON7GoO+fHbADkNJrg/c5CJzNsUHok51lancAgcx4IYlKG4jMO45x01Hr4XaZIL3J/fA5LtJertV6a9fO28x9w2BSqYgj4bpxfIdLVg5A/PL3hfHEWUeVr5cRnRLPbAUbH4Pp9+Ynn3xUdSJGinDWriOk3fLE7NPv0D2bjiyf6dRAmBrxpA20TC8I4lzD3mnGrz+jfl0EaC7VQFuwPVt+oV7S+cGrYBwmGob4nywSqCtoscZll3HS5E3GpIOUjD3pHT91hN2A6VOTz82RiwE9gNP0Yk+/ZqBUTe9fmjc8iLR+1RSOgQTRFCd9xCj9uNpPDNl/aZC5qY+dUINbo0hMwGuQj1mcvB8Gp8FyiMSfCCGxGfCNhKzXPjDT86AUqzSK5yaVdhfgKnzDTopxh2PldT+biLL5vtWSEp4KwgC+ydgXT706cMPdX0bUdQpdW5m8dPEl0dtQAckQV+GV+zyPkBSRhd2MKSFeGHOeL3iHKVQVOpAAJYBfFNxi9Nc4aC6ZpIoL0srzPmph8U039RjzK0RNVHRCnC6pLNPygE2pkl1Rms3wGeJG4plw=
   file: "${RELEASE_FILE}"
   skip_cleanup: true
   on:
     repo: GATB/tigops
     tags: true
-
