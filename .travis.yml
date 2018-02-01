@@ -29,7 +29,8 @@ script:
     - cmake .. && make
     - cd ..
 before_deploy:
-    - export RELEASE_FILE=$(ls build/tigops)
+    - mv build/tigops build/tigops-$TRAVIS_OS_NAME
+    - export RELEASE_FILE=$(ls build/tigops-$TRAVIS_OS_NAME)
     - ls
     - ls build
     - echo "Deploying $RELEASE_FILE to GitHub"
