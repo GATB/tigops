@@ -207,6 +207,7 @@ template <typename T>
 std::string to_string_p(const T a_value, const int n = 3)
 { // https://stackoverflow.com/questions/16605967/set-precision-of-stdto-string-when-converting-floating-point-values
     std::ostringstream out;
+    out << fixed; // removed scientific notation // https://stackoverflow.com/questions/6301547/turn-off-scientific-notation-on-float
     out << std::setprecision(n) << a_value;
     return out.str();
 }
